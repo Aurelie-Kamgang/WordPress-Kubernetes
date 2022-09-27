@@ -3,7 +3,7 @@
 Prerequisites: install docker and k8s
 
 1. Creating a mysql deployment to a replica and exposing the pods with the ClusterIP service
-	- Apply : `kubectl apply -f mysql.yml`
+	- Apply : `kubectl apply -f mysql-wordpress.yml`
     - Verify : `kubectl get all -o wide`
                    `kubectl describe svc name_service`
                    
