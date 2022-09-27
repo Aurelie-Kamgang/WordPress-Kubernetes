@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-wordpress
+  labels:
+    app: wordpress
+    tier: back-end
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: back-end
+  strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: back-end
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+         - name: MYSQL_ROOT_PASSWORD
+           value: aurelie
+        ports:
+         - containerPort: 3306
+           name: mysql
+     
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-wordpress
+  labels:
+    app: wordpress
+    tier: back-end
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+  selector:
+    app: wordpress
+    tier: back-end

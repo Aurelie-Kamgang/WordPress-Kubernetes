@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+    tier: frontend
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - image: wordpress:4.8-apache
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysql-wordpress
+        - name: WORDPRESS_DB_PASSWORD
+          value: aurelie
+        volumeMounts:
+        - name: wordpress-storage
+          mountPath: /var/www/html
+        ports:
+        - containerPort: 80
+          name: wordpress
+
+      volumes:
+      - name: wordpress-storage
+        hostPath:
+          # chemin du dossier sur l'hôte
+          path: /data
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+    tier: frontend
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30036
+  selector:
+    app: wordpress
+    tier: frontend
+  
