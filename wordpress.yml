@@ -5,16 +5,14 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
+  namespace: wordpress
 spec:
   selector:
     matchLabels:
       app: wordpress
       tier: frontend
   strategy:
-     type: RollingUpdate
-     rollingUpdate:
-       maxSurge: 1
-       maxUnavailable: 1
+     type: Recreate
   template:
     metadata:
       labels:
@@ -22,13 +20,20 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: wordpress:4.8-apache
+      - image: wordpress
         name: wordpress
         env:
+        - name: WORDPRESS_DB_USER
+          value: aurelie
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
         - name: WORDPRESS_DB_HOST
           value: mysql-wordpress
         - name: WORDPRESS_DB_PASSWORD
-          value: aurelie
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-secret
+              key: wordpress_db_password
         volumeMounts:
         - name: wordpress-storage
           mountPath: /var/www/html
@@ -40,7 +45,7 @@ spec:
       - name: wordpress-storage
         hostPath:
           # chemin du dossier sur l'hôte
-          path: /data
+          path: /data/wordpress
 
 ---
 
@@ -51,12 +56,13 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
+  namespace: wordpress
 spec:
   type: NodePort
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30036
+      nodePort: 30008
   selector:
     app: wordpress
     tier: frontend

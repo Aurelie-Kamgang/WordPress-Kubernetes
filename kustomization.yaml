@@ -1,0 +1,5 @@
+resources:
+  - wordpress-namespace.yml
+  - wordpress-secret.yml
+  - mysql-wordpress.yml
+  - wordpress.yml
